@@ -1,0 +1,114 @@
+Build a complete single-file HTML tool named average-calculator.html.
+
+Goal:
+Create a simple web app that calculates the average of numbers entered by the user.
+
+Main requirements:
+1. Use only one .html file.
+2. Include HTML, CSS, and JavaScript inside the same file.
+3. No backend server is required.
+4. The tool must work fully offline in browser.
+5. Frontend layout should look similar to the attached sketch:
+   - Number input boxes vertically on the left.
+   - Output box on the right.
+   - Clean white background.
+   - Black bordered boxes.
+
+Functional requirements:
+1. By default, show 5 input fields:
+   - Number 1
+   - Number 2
+   - Number 3
+   - Number 4
+   - Number 5
+
+2. User can enter decimal numbers like:
+   23.53
+   24.62
+   28.79
+   28.77
+
+3. Calculate the average automatically as the user types.
+
+4. Ignore empty fields while calculating.
+
+5. If user fills the 5th field, automatically create and show Number 6.
+6. If user fills Number 6, automatically create Number 7.
+7. Continue this pattern endlessly:
+   - Whenever the last visible field has a valid value, add one more new field.
+
+8. Output box should show:
+   Average is 26.42
+
+9. Average should be rounded to 2 decimal places.
+
+10. If no valid number is entered, output should show:
+   Enter numbers to calculate average
+
+11. If user enters invalid text, show a small red validation message below that field:
+   Please enter a valid number
+
+UI requirements:
+1. Page title:
+   Dynamic Average Calculator
+
+2. Left side:
+   Input fields in black outlined rectangular boxes.
+   Each field should have placeholder:
+   Number 1
+   Number 2
+   Number 3
+   and so on.
+
+3. Right side:
+   A large black outlined output box.
+   Center text inside it.
+   Output should update live.
+
+4. Add one button named exactly:
+   Average Calculator - Insturctions
+
+5. Keep the spelling exactly as above: Insturctions
+
+6. When the user clicks the button, show a modal popup.
+
+7. Modal popup should contain exactly 5 bullet points:
+   - Enter numbers in the boxes one by one.
+   - Empty boxes are ignored in the average.
+   - A new box appears after the last box is filled.
+   - The average updates automatically.
+   - Use decimal numbers when needed.
+
+8. Modal should have a close button.
+
+9. Design should be modern, clean, responsive, and mobile friendly.
+
+10. Add hover effects to the button.
+
+11. Keep code clean with comments.
+
+Technical instructions:
+1. Use semantic HTML.
+2. Use CSS Flexbox or Grid.
+3. Use vanilla JavaScript only.
+4. Do not use React.
+5. Do not use external libraries.
+6. Do not use CDN links.
+7. Make sure the file runs by double-clicking in browser.
+8. Use input type="text" instead of number so validation can be controlled manually.
+9. Allow negative numbers and decimals.
+10. Do not count invalid fields in the average.
+
+Expected example:
+If user enters:
+Number 1: 23.53
+Number 2: 24.62
+Number 3: 28.79
+Number 4: 28.77
+
+Output:
+Average is 26.42
+
+Deliverable:
+Return only the complete final HTML code.
+Do not explain anything outside the code.

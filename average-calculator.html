@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Average Calculator</title>
+
+  <style>
+    /* ---------- Global / Reset ---------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --black: #111111;
+      --border: #111111;
+      --muted: #666666;
+      --error: #d32f2f;
+      --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      background: #ffffff;
+      color: var(--black);
+      line-height: 1.5;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    /* ---------- Header ---------- */
+    header {
+      max-width: 980px;
+      margin: 0 auto 24px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      letter-spacing: -0.5px;
+    }
+
+    /* ---------- Instructions Button ---------- */
+    .btn {
+      font: inherit;
+      font-weight: 600;
+      padding: 12px 18px;
+      background: #ffffff;
+      color: var(--black);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--black);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid #888;
+      outline-offset: 2px;
+    }
+
+    /* ---------- Main Layout (two columns) ---------- */
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ---------- Input Fields ---------- */
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field input {
+      width: 100%;
+      font: inherit;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .field input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.12);
+    }
+
+    .field input.invalid {
+      border-color: var(--error);
+    }
+
+    .error-msg {
+      display: none;
+      color: var(--error);
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    /* ---------- Output Box ---------- */
+    .output-panel {
+      position: sticky;
+      top: 24px;
+    }
+
+    .output-box {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      min-height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .output-box.placeholder {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 1.2rem;
+    }
+
+    .reset-btn {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    /* ---------- Modal ---------- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      z-index: 100;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      max-width: 460px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.25s ease;
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-header h3 {
+      font-size: 1.3rem;
+    }
+
+    .modal-close {
+      font: inherit;
+      font-size: 1.4rem;
+      line-height: 1;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background 0.15s ease;
+    }
+
+    .modal-close:hover {
+      background: #f0f0f0;
+    }
+
+    .modal ul {
+      padding-left: 20px;
+    }
+
+    .modal li {
+      margin-bottom: 10px;
+    }
+
+    /* ---------- Responsive (mobile) ---------- */
+    @media (max-width: 720px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .output-panel {
+        position: static;
+      }
+
+      header {
+        justify-content: center;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ---------- Header ---------- -->
+  <header>
+    <h1>Dynamic Average Calculator</h1>
+    <button class="btn" id="instructionsBtn">Average Calculator - Instructions</button>
+  </header>
+
+  <!-- ---------- Main two-column layout ---------- -->
+  <main>
+    <!-- Left: input fields -->
+    <section class="panel" aria-label="Number inputs">
+      <h2>Numbers</h2>
+      <div id="inputsContainer"></div>
+    </section>
+
+    <!-- Right: live output -->
+    <section class="panel output-panel" aria-label="Average result">
+      <h2>Result</h2>
+      <div id="output" class="output-box placeholder" aria-live="polite">
+        Enter numbers to calculate average
+      </div>
+      <button class="btn reset-btn" id="resetBtn"><span aria-hidden="true">&#8635;</span> Reset</button>
+    </section>
+  </main>
+
+  <!-- ---------- Instructions Modal ---------- -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">How to Use</h3>
+        <button class="modal-close" id="modalClose" aria-label="Close instructions">&times;</button>
+      </div>
+      <ul>
+        <li>Enter numbers in the boxes one by one.</li>
+        <li>Empty boxes are ignored in the average.</li>
+        <li>A new box appears after the last box is filled.</li>
+        <li>The average updates automatically.</li>
+        <li>Use decimal numbers when needed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    /* ---------- Constants & State ---------- */
+    const DEFAULT_FIELDS = 5;
+    const inputsContainer = document.getElementById("inputsContainer");
+    const output = document.getElementById("output");
+    let fieldCount = 0; // tracks how many fields currently exist
+
+    /* ---------- createInputField() ----------
+       Builds a single labeled text input with an attached error message. */
+    function createInputField(index) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "field";
+
+      const input = document.createElement("input");
+      input.type = "text"; // text (not number) so we control validation manually
+      input.placeholder = "Number " + index;
+      input.setAttribute("aria-label", "Number " + index);
+      input.dataset.index = index;
+
+      const error = document.createElement("span");
+      error.className = "error-msg";
+      error.textContent = "Please enter a valid number";
+
+      // Live recalculation + dynamic expansion on every keystroke
+      input.addEventListener("input", handleInput);
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(error);
+      inputsContainer.appendChild(wrapper);
+      fieldCount = index;
+      return input;
+    }
+
+    /* ---------- validateInput() ----------
+       Returns true only for a well-formed number (decimals & negatives allowed). */
+    function validateInput(value) {
+      const trimmed = value.trim();
+      if (trimmed === "") return true; // empty is allowed (just ignored)
+      // Optional sign, digits with optional single decimal point.
+      const numberPattern = /^-?(\d+(\.\d+)?|\.\d+)$/;
+      return numberPattern.test(trimmed);
+    }
+
+    /* ---------- addNewFieldIfNeeded() ----------
+       Keeps exactly one empty field at the bottom: if the last field holds a
+       valid, non-empty number, append the next field. */
+    function addNewFieldIfNeeded() {
+      const inputs = inputsContainer.querySelectorAll("input");
+      const lastInput = inputs[inputs.length - 1];
+      const value = lastInput.value.trim();
+
+      if (value !== "" && validateInput(value)) {
+        createInputField(fieldCount + 1);
+      }
+    }
+
+    /* ---------- calculateAverage() ----------
+       Sums all valid, non-empty fields and updates the output box live. */
+    function calculateAverage() {
+      const inputs = inputsContainer.querySelectorAll("input");
+      let sum = 0;
+      let count = 0;
+
+      inputs.forEach((input) => {
+        const value = input.value.trim();
+        if (value !== "" && validateInput(value)) {
+          sum += parseFloat(value);
+          count++;
+        }
+      });
+
+      if (count === 0) {
+        output.textContent = "Enter numbers to calculate average";
+        output.classList.add("placeholder");
+      } else {
+        const average = sum / count;
+        output.textContent = "Average is " + average.toFixed(2);
+        output.classList.remove("placeholder");
+      }
+    }
+
+    /* ---------- handleInput() ----------
+       Orchestrates validation feedback, dynamic expansion, and recalculation. */
+    function handleInput(event) {
+      const input = event.target;
+      const wrapper = input.parentElement;
+      const error = wrapper.querySelector(".error-msg");
+      const value = input.value.trim();
+
+      // Show/hide per-field validation message
+      if (value !== "" && !validateInput(value)) {
+        error.classList.add("show");
+        input.classList.add("invalid");
+      } else {
+        error.classList.remove("show");
+        input.classList.remove("invalid");
+      }
+
+      addNewFieldIfNeeded();
+      calculateAverage();
+    }
+
+    /* ---------- Modal controls ---------- */
+    const modalOverlay = document.getElementById("modalOverlay");
+    const instructionsBtn = document.getElementById("instructionsBtn");
+    const modalClose = document.getElementById("modalClose");
+
+    function openInstructionsModal() {
+      modalOverlay.classList.add("open");
+    }
+
+    function closeInstructionsModal() {
+      modalOverlay.classList.remove("open");
+    }
+
+    instructionsBtn.addEventListener("click", openInstructionsModal);
+    modalClose.addEventListener("click", closeInstructionsModal);
+
+    // Click outside the modal to close
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) closeInstructionsModal();
+    });
+
+    // Escape key to close
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeInstructionsModal();
+    });
+
+    /* ---------- resetCalculator() ----------
+       Clears every field and restores the default 5 empty fields + placeholder. */
+    function resetCalculator() {
+      inputsContainer.innerHTML = "";
+      fieldCount = 0;
+      for (let i = 1; i <= DEFAULT_FIELDS; i++) {
+        createInputField(i);
+      }
+      calculateAverage(); // resets output back to the placeholder message
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", resetCalculator);
+
+    /* ---------- Init: render the default 5 fields ---------- */
+    function init() {
+      for (let i = 1; i <= DEFAULT_FIELDS; i++) {
+        createInputField(i);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
